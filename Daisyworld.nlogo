@@ -9,10 +9,16 @@ globals [
   patches_total
   patches_black
   patches_white
+  patches_free
+  new_white
+  new_black
 
+  ;const
   solar_flux
   sigma
   insulation
+  temperature_optimal
+  width
 ]
 
 turtles-own[
@@ -42,41 +48,117 @@ lights-own[
 to clear
   clear-all
   reset-ticks
+  set albedo_white 0.75
+  set albedo_black 0.25
+  set luminosity 1
+  set n_white int( count(patches) / 100 * 30 )
+  set n_black int( count(patches) / 100 * 30 )
+end
+
+to create
+  ; settare colore patches
+  ; creare le turtles con posizione random e prorio colore
+  create-darks n_black [
+    setxy random-xcor random-ycor
+    set color black
+    set beta beta_black
+    set albedo albedo_black
+    set temperature temperature_black
+    set age random(3)
+    set shape "flower"
+  ]
+  create-lights n_white [
+    setxy random-xcor random-ycor
+    set color white
+    set beta beta_white
+    set albedo albedo_white
+    set temperature temperature_white
+    set age random(3)
+    set shape "flower"
+  ]
+  ask patches[
+   set pcolor grey
+  ]
+end
+
+to setup
   set solar_flux 917
-  set sigma 5.67 * 10 ^ -8
+  set sigma 5.67 * 10 ^ (- 8)
   set insulation 2.06425 * 10 ^ 9
   set albedo_null 0.5
+  set temperature_optimal 22.5 + 273
+  set width 17.5
   set temperature_total 0
   set temperature_black 0
   set temperature_white 0
   set beta_black 0
   set beta_white 0
-  ask darks[
-    set beta beta_black
-    set albedo albedo_black
-    set temperature temperature_black
-    set age 0
-    ]
-  ask lights[
-    set beta beta_white
-    set albedo albedo_white
-    set temperature temperature_white
-    set age 0
-    ]
+  calculate
+  create
+  calculate
 end
 
 to calculate
   set patches_total (count patches)
   set patches_black (count darks)
   set patches_white (count lights)
-  set albedo_mean ((patches_white * albedo_white + patches_black * albedo_black))/(patches_total)
-  set temperature_total (((solar_flux * luminosity)/ sigma )*(1 - albedo_mean))^ 0.25
-  set temperature_black ( insulation * (albedo_mean - albedo_black ) + temperature_total ) ^ 0.25
-  ; temp white e altri calcoli
+  set patches_free ( patches_total - patches_black - patches_white )
+  ; albedo calculation
+  set albedo_mean ((patches_white * albedo_white + patches_black * albedo_black + patches_free * albedo_null))/(patches_total)
+  ; total temperature calculation
+  set temperature_total (((solar_flux * luminosity)/ sigma )*(1 - albedo_mean)) ^ 0.25
+  ; daisies temperatures
+  set temperature_black (abs( insulation * ( albedo_mean - albedo_black ) + temperature_total ^ 4 )) ^ 0.25
+  set temperature_white (abs( insulation * ( albedo_mean - albedo_white ) + temperature_total ^ 4 )) ^ 0.25
+  ; daisies beta calculations
+  set beta_black ( 1 - ( abs( temperature_optimal - temperature_black) / width ) ^ 2 )
+  set beta_white ( 1 - ( abs( temperature_optimal - temperature_white) / width ) ^ 2 )
+end
+
+to aging
+  ask turtles[
+    set age age + 1
+  ]
+end
+
+to check
+  ask turtles with [age = 3] [ die ]
+end
+
+to reproduce
+  ; reproduction based on beta_i
+  set new_white int( beta_white * patches_white * ( patches_total - patches_white ) / patches_total )
+  set new_black int( beta_black * patches_black * ( patches_total - patches_black ) / patches_total )
+  if patches_white > 1 [
+    ask one-of lights [
+      hatch new_white
+      [
+        rt random 360
+        setxy random-xcor random-ycor
+        set age 0
+      ]
+    ]
+  ]
+
+  if patches_black > 1 [
+    ask one-of darks [
+      hatch new_black
+      [
+        rt random 360
+        setxy random-xcor random-ycor
+        set age 0
+      ]
+    ]
+  ]
 end
 
 to go
   tick
+  check ; check turtles age
+  calculate
+  reproduce ; reproduce turtles based on beta_i
+  aging ; at the end of the cycle, turtles age
+  calculate ; calculations of the new variables values
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -167,6 +249,109 @@ NIL
 NIL
 NIL
 1
+
+BUTTON
+732
+92
+799
+125
+NIL
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+732
+147
+795
+180
+NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+17
+231
+189
+264
+n_white
+n_white
+0
+count(patches)
+326.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+20
+280
+192
+313
+n_black
+n_black
+0
+count(patches)
+326.0
+1
+1
+NIL
+HORIZONTAL
+
+PLOT
+63
+520
+263
+670
+Frequencies
+tick
+frequency
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"dark" 1.0 0 -16777216 true "" "plot ( count darks / count patches )"
+"light" 1.0 0 -1184463 true "" "plot ( count lights / count patches )"
+
+PLOT
+319
+521
+519
+671
+Temperatures
+tick
+temperature
+0.0
+10.0
+270.0
+350.0
+true
+true
+"set temperature_total 300\nset temperature_white 300\nset temperature_black 300" ""
+PENS
+"Total" 1.0 0 -10899396 true "" "plot temperature_total"
+"White" 1.0 0 -1184463 true "" "plot temperature_white"
+"Black" 1.0 0 -16777216 true "" "plot temperature_black"
 
 @#$#@#$#@
 ## WHAT IS IT?
