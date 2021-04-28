@@ -12,6 +12,7 @@ globals [
   patches_free
   new_white
   new_black
+  scaling_factor
 
   ;const
   solar_flux
@@ -58,8 +59,13 @@ end
 to create
   ; settare colore patches
   ; creare le turtles con posizione random e prorio colore
-  create-darks n_black [
-    setxy random-xcor random-ycor
+  ask n-of n_black patches [
+    sprout-darks 1]
+  ask n-of n_white patches [
+    sprout-lights 1]
+  ;create-darks n_black [
+    ;setxy random-xcor random-ycor
+  ask darks[
     set color black
     set beta beta_black
     set albedo albedo_black
@@ -67,8 +73,9 @@ to create
     set age random(3)
     set shape "flower"
   ]
-  create-lights n_white [
-    setxy random-xcor random-ycor
+  ;create-lights n_white [
+    ;setxy random-xcor random-ycor
+  ask lights[
     set color white
     set beta beta_white
     set albedo albedo_white
@@ -125,11 +132,31 @@ to check
   ask turtles with [age = 3] [ die ]
 end
 
+to check-space ;checks if all new turtles can be created, checking if there is enough room for them
+  if new_white + new_black > patches_free [
+   set scaling_factor patches_free / ( new_white + new_black )
+   set new_white  scaling_factor * new_white
+   set new_black  scaling_factor * new_black
+  ]
+end
+
+to move ;checks if there are other turtles on the patch and if so moves the turtle away
+  if any? turtles-on patch-here [
+    ifelse one-of patches with [not any? turtles-on self] != nobody[
+      move-to one-of patches with [not any? turtles-on self]
+    ]
+    [die]
+    ]
+end
+
 to reproduce
   ; reproduction based on beta_i
   set new_white int( beta_white * patches_white * ( patches_total - patches_white ) / patches_total )
   set new_black int( beta_black * patches_black * ( patches_total - patches_black ) / patches_total )
-  if patches_white > 1 [
+
+  check-space
+
+  if new_white > 1 [
     ask one-of lights [
       hatch new_white
       [
@@ -140,7 +167,7 @@ to reproduce
     ]
   ]
 
-  if patches_black > 1 [
+  if new_black > 1 [
     ask one-of darks [
       hatch new_black
       [
@@ -150,6 +177,11 @@ to reproduce
       ]
     ]
   ]
+
+  ask turtles with [age = 0] [
+    move
+  ]
+
 end
 
 to go
@@ -343,8 +375,8 @@ tick
 temperature
 0.0
 10.0
-270.0
-350.0
+280.0
+330.0
 true
 true
 "set temperature_total 300\nset temperature_white 300\nset temperature_black 300" ""
@@ -352,6 +384,61 @@ PENS
 "Total" 1.0 0 -10899396 true "" "plot temperature_total"
 "White" 1.0 0 -1184463 true "" "plot temperature_white"
 "Black" 1.0 0 -16777216 true "" "plot temperature_black"
+
+MONITOR
+560
+523
+652
+568
+Temperature
+precision temperature_total 1
+17
+1
+11
+
+MONITOR
+561
+591
+735
+636
+White daysies temperature
+precision temperature_white 1
+17
+1
+11
+
+MONITOR
+562
+649
+733
+694
+Black daysies temperature
+precision temperature_black 1
+17
+1
+11
+
+MONITOR
+750
+592
+909
+637
+White daysies frequency
+precision (patches_white / patches_total) 2
+17
+1
+11
+
+MONITOR
+752
+651
+908
+696
+Black daysies frequency
+precision (patches_black / patches_total) 2
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
