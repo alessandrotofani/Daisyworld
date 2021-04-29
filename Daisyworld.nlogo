@@ -95,9 +95,9 @@ to setup
   set albedo_null 0.5
   set temperature_optimal 22.5 + 273
   set width 17.5
-  set temperature_total 0
-  set temperature_black 0
-  set temperature_white 0
+  set temperature_total 273
+  set temperature_black 273
+  set temperature_white 273
   set beta_black 0
   set beta_white 0
   calculate
@@ -236,10 +236,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-38
-132
-210
-165
+19
+108
+191
+141
 albedo_black
 albedo_black
 0
@@ -251,10 +251,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-35
-187
-207
-220
+18
+176
+190
+209
 luminosity
 luminosity
 0
@@ -332,10 +332,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-20
-280
-192
-313
+18
+277
+190
+310
 n_black
 n_black
 0
@@ -375,15 +375,15 @@ tick
 temperature
 0.0
 10.0
-280.0
-330.0
+0.0
+60.0
 true
 true
 "set temperature_total 300\nset temperature_white 300\nset temperature_black 300" ""
 PENS
-"Total" 1.0 0 -10899396 true "" "plot temperature_total"
-"White" 1.0 0 -1184463 true "" "plot temperature_white"
-"Black" 1.0 0 -16777216 true "" "plot temperature_black"
+"Total" 1.0 0 -10899396 true "" "plot (temperature_total - 273)"
+"White" 1.0 0 -1184463 true "" "plot (temperature_white - 273)"
+"Black" 1.0 0 -16777216 true "" "plot (temperature_black - 273)"
 
 MONITOR
 560
@@ -391,7 +391,7 @@ MONITOR
 652
 568
 Temperature
-precision temperature_total 1
+precision ( temperature_total - 273 ) 1
 17
 1
 11
@@ -402,7 +402,7 @@ MONITOR
 735
 636
 White daysies temperature
-precision temperature_white 1
+precision ( temperature_white - 273 ) 1
 17
 1
 11
@@ -413,7 +413,7 @@ MONITOR
 733
 694
 Black daysies temperature
-precision temperature_black 1
+precision ( temperature_black - 273 ) 1
 17
 1
 11
