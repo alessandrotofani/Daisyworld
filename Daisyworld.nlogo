@@ -14,6 +14,13 @@ globals [
   new_black
   scaling_factor
 
+  ;lists
+  temperature_total_list
+  luminosity_list
+  patches_black_list
+  patches_white_list
+  patches_total_list
+
   ;const
   solar_flux
   sigma
@@ -54,6 +61,11 @@ to clear
   set luminosity 1
   set n_white int( count(patches) / 100 * 30 )
   set n_black int( count(patches) / 100 * 30 )
+  set temperature_total_list[]
+  set luminosity_list[]
+  set patches_black_list[]
+  set patches_white_list[]
+  set patches_total_list[]
 end
 
 to create
@@ -180,8 +192,17 @@ to reproduce
 
   ask turtles with [age = 0] [
     move
+   ; set age random(2)
   ]
 
+end
+
+to store
+  set temperature_total_list lput temperature_total temperature_total_list
+  set luminosity_list lput luminosity luminosity_list
+  set patches_black_list lput patches_black patches_black_list
+  set patches_white_list lput patches_white patches_white_list
+  set patches_total_list lput patches_total patches_total_list
 end
 
 to go
@@ -191,6 +212,7 @@ to go
   reproduce ; reproduce turtles based on beta_i
   aging ; at the end of the cycle, turtles age
   calculate ; calculations of the new variables values
+  store ; store values in order to analyze plots
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -259,7 +281,7 @@ luminosity
 luminosity
 0
 2
-1.0
+1.4
 0.1
 1
 NIL
@@ -306,7 +328,7 @@ BUTTON
 180
 NIL
 go
-T
+NIL
 1
 T
 OBSERVER
