@@ -25,8 +25,8 @@ Buttons are used to setup and direct the simulation.
 
 They should be used in the following order:
 
-1. `clear`: clears the simulation workspace and reset variables values to default;
-2. `setup`: sets the environment and create the agents;
+1. `clear`: clears the simulation workspace and resets variables values to default;
+2. `setup`: sets the environment and creates the agents;
 3. `go`: starts the simulation. It is set as continuous (forever), but you can change it by editing the button.
 
 ## Sliders
