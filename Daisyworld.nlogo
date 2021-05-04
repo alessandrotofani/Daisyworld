@@ -27,6 +27,7 @@ globals [
   insulation
   temperature_optimal
   width
+  degrees
 ]
 
 turtles-own[
@@ -59,6 +60,7 @@ to clear
   set albedo_white 0.75
   set albedo_black 0.25
   set luminosity 1
+  set degrees 273.15
   set n_white int( count(patches) / 100 * 30 )
   set n_black int( count(patches) / 100 * 30 )
   set temperature_total_list[]
@@ -105,11 +107,11 @@ to setup
   set sigma 5.67 * 10 ^ (- 8)
   set insulation 2.06425 * 10 ^ 9
   set albedo_null 0.5
-  set temperature_optimal 22.5 + 273
+  set temperature_optimal 22.5 + degrees
   set width 17.5
-  set temperature_total 273
-  set temperature_black 273
-  set temperature_white 273
+  set temperature_total degrees
+  set temperature_black degrees
+  set temperature_white degrees
   set beta_black 0
   set beta_white 0
   calculate
@@ -120,6 +122,8 @@ end
 to calculate
   set patches_total (count patches)
   set patches_black (count darks)
+  ;show patches_black
+  ;show count patches with [count darks-here != 0]
   set patches_white (count lights)
   set patches_free ( patches_total - patches_black - patches_white )
   ; albedo calculation
@@ -147,8 +151,8 @@ end
 to check-space ;checks if all new turtles can be created, checking if there is enough room for them
   if new_white + new_black > patches_free [
    set scaling_factor patches_free / ( new_white + new_black )
-   set new_white  scaling_factor * new_white
-   set new_black  scaling_factor * new_black
+   set new_white  int(scaling_factor * new_white)
+   set new_black  int(scaling_factor * new_black)
   ]
 end
 
@@ -205,6 +209,16 @@ to store
   set patches_total_list lput patches_total patches_total_list
 end
 
+to increment-decrement
+  if increment and ticks mod 10 = 0 and count turtles != 0[
+   set luminosity luminosity + 0.01
+  ]
+
+  if decrement and ticks mod 10 = 0 and count turtles != 0[
+   set luminosity luminosity - 0.01
+  ]
+end
+
 to go
   tick
   check ; check turtles age
@@ -213,6 +227,8 @@ to go
   aging ; at the end of the cycle, turtles age
   calculate ; calculations of the new variables values
   store ; store values in order to analyze plots
+  increment-decrement
+  if not any? turtles [ stop ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -279,10 +295,10 @@ SLIDER
 209
 luminosity
 luminosity
-0
-2
-1.4
-0.1
+0.6
+1.7
+0.6599999999999997
+0.01
 1
 NIL
 HORIZONTAL
@@ -328,7 +344,7 @@ BUTTON
 180
 NIL
 go
-NIL
+T
 1
 T
 OBSERVER
@@ -461,6 +477,28 @@ precision (patches_black / patches_total) 2
 17
 1
 11
+
+SWITCH
+23
+332
+147
+365
+Increment
+Increment
+1
+1
+-1000
+
+SWITCH
+22
+383
+151
+416
+Decrement
+Decrement
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
