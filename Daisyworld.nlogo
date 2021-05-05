@@ -210,7 +210,8 @@ to store
 end
 
 to increment-decrement
-  if increment and ticks mod 10 = 0 and count turtles != 0[
+  ;if increment and ticks mod 10 = 0 and count turtles != 0[
+  if increment and ticks mod 10 = 0[
    set luminosity luminosity + 0.01
   ]
 
@@ -228,7 +229,8 @@ to go
   calculate ; calculations of the new variables values
   store ; store values in order to analyze plots
   increment-decrement
-  if not any? turtles [ stop ]
+  ;if not any? turtles [ stop ]
+  if luminosity > 1.6 [stop]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -297,7 +299,7 @@ luminosity
 luminosity
 0.6
 1.7
-0.6599999999999997
+1.6000000000000008
 0.01
 1
 NIL
@@ -363,7 +365,7 @@ n_white
 n_white
 0
 count(patches)
-326.0
+0.0
 1
 1
 NIL
@@ -378,7 +380,7 @@ n_black
 n_black
 0
 count(patches)
-326.0
+0.0
 1
 1
 NIL
@@ -485,7 +487,7 @@ SWITCH
 365
 Increment
 Increment
-1
+0
 1
 -1000
 
@@ -496,7 +498,7 @@ SWITCH
 416
 Decrement
 Decrement
-0
+1
 1
 -1000
 
